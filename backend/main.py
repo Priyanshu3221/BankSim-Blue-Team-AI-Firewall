@@ -9,8 +9,8 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from starlette.exceptions import HTTPException as StarletteHTTPException
 
-from backend.api import api_router
-from backend.config import get_settings
+from api import api_router
+from config import get_settings
 
 # Configure secure logging
 logging.basicConfig(
@@ -18,7 +18,7 @@ logging.basicConfig(
     format="%(asctime)s [%(levelname)s] %(name)s: %(message)s",
 )
 from contextlib import asynccontextmanager
-from backend.database import init_db
+from database import init_db
 
 logger = logging.getLogger("banksim")
 
