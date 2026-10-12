@@ -6,17 +6,17 @@ from pydantic import BaseModel, Field
 from sqlalchemy import or_
 from sqlalchemy.orm import Session
 
-from backend.database import get_db
-from backend.models import Account, Transaction, User
-from backend.schemas import (
+from database import get_db
+from models import Account, Transaction, User
+from schemas import (
     AccountRead,
     CustomerTransactionItem,
     CustomerTransactionListResponse,
     TransferRequest,
     TransferResponse,
 )
-from backend.security.dependencies import get_current_user
-from backend.services.banking_service import banking_service
+from security.dependencies import get_current_user
+from services.banking_service import banking_service
 
 banking_router = APIRouter(prefix="/banking", tags=["Banking"])
 

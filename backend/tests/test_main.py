@@ -4,8 +4,8 @@ import os
 import pytest
 from fastapi.testclient import TestClient
 
-from backend.main import app
-from backend.config import get_settings
+from main import app
+from config import get_settings
 
 
 @pytest.fixture(scope="module")
@@ -95,7 +95,7 @@ def test_cors_configuration():
 
 def test_settings_reliable_env_loading_across_cwds(tmp_path, monkeypatch):
     """Test 7: Settings load reliably from project root regardless of process CWD."""
-    from backend.config import Settings, PROJECT_ROOT
+    from config import Settings, PROJECT_ROOT
 
     # Switch working directory to an arbitrary temporary directory
     monkeypatch.chdir(tmp_path)
@@ -109,7 +109,7 @@ def test_settings_reliable_env_loading_across_cwds(tmp_path, monkeypatch):
 
 def test_settings_gemini_and_google_alias_support(monkeypatch):
     """Test 8: Settings accept both GEMINI_API_KEY and GOOGLE_API_KEY aliases."""
-    from backend.config import Settings
+    from config import Settings
 
     # Test GOOGLE_API_KEY alias
     monkeypatch.setenv("GOOGLE_API_KEY", "test-google-key-alias-123")

@@ -6,8 +6,8 @@ from sqlalchemy import create_engine, event, inspect
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session, sessionmaker
 
-from backend.database import Base, set_sqlite_pragma
-from backend.models import (
+from database import Base, set_sqlite_pragma
+from models import (
     Account,
     AccountType,
     ChallengePurpose,

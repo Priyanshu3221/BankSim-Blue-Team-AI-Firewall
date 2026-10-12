@@ -6,14 +6,14 @@ from sqlalchemy import create_engine, event
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.pool import StaticPool
 
-from backend.database import Base, get_db, set_sqlite_pragma
-from backend.main import app
-from backend.models import Account, Transaction, User
-from backend.security.login_tracker import login_tracker
-from backend.security.passwords import hash_password
-from backend.security.tokens import create_access_token
-from backend.services.ai_providers import MockAIProvider
-from backend.services.ai_threat_analyzer import ai_threat_analyzer
+from database import Base, get_db, set_sqlite_pragma
+from main import app
+from models import Account, Transaction, User
+from security.login_tracker import login_tracker
+from security.passwords import hash_password
+from security.tokens import create_access_token
+from services.ai_providers import MockAIProvider
+from services.ai_threat_analyzer import ai_threat_analyzer
 
 
 @pytest.fixture

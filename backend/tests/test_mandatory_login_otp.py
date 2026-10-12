@@ -8,12 +8,12 @@ from sqlalchemy import create_engine, event
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.pool import StaticPool
 
-from backend.database import Base, get_db, set_sqlite_pragma, seed_demo_data
-from backend.main import app
-from backend.models import ChallengePurpose, ChallengeStatus, User, UserRole, VerificationChallenge
-from backend.security.login_tracker import login_tracker
-from backend.security.passwords import hash_password
-from backend.services.verification_service import otp_provider
+from database import Base, get_db, set_sqlite_pragma, seed_demo_data
+from main import app
+from models import ChallengePurpose, ChallengeStatus, User, UserRole, VerificationChallenge
+from security.login_tracker import login_tracker
+from security.passwords import hash_password
+from services.verification_service import otp_provider
 
 
 @pytest.fixture

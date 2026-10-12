@@ -2,11 +2,11 @@
 
 from fastapi import APIRouter
 
-from backend.api.admin import admin_router
-from backend.api.auth import auth_router
-from backend.api.banking import banking_router
-from backend.api.security import security_router
-from backend.api.users import users_router
+from api.admin import admin_router
+from api.auth import auth_router
+from api.banking import banking_router
+from api.security import security_router
+from api.users import users_router
 
 # Root API router for versioned endpoints
 api_router = APIRouter(prefix="/api/v1")

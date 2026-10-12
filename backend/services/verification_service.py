@@ -26,8 +26,8 @@ from typing import Dict, Optional, Tuple
 from fastapi import HTTPException, status
 from sqlalchemy.orm import Session
 
-from backend.config import get_settings
-from backend.models import (
+from config import get_settings
+from models import (
     ChallengePurpose,
     ChallengeStatus,
     ChallengeType,

@@ -7,7 +7,7 @@ from typing import Any, Dict, Optional
 import jwt
 from jwt.exceptions import ExpiredSignatureError, InvalidTokenError
 
-from backend.config import get_settings
+from config import get_settings
 
 logger = logging.getLogger("banksim.security.tokens")
 

@@ -19,8 +19,8 @@ from typing import Any, Dict, List, Optional
 from sqlalchemy import func
 from sqlalchemy.orm import Session
 
-from backend.config import get_settings
-from backend.models import (
+from config import get_settings
+from models import (
     Account,
     SecurityEvent,
     SecurityEventType,
@@ -28,13 +28,13 @@ from backend.models import (
     Transaction,
     User,
 )
-from backend.schemas import (
+from schemas import (
     RiskAssessmentResponse,
     RiskLevel,
     RiskOutcome,
     RiskSignalResult,
 )
-from backend.security.login_tracker import login_tracker
+from security.login_tracker import login_tracker
 
 logger = logging.getLogger("banksim.security.risk_engine")
 
@@ -368,7 +368,7 @@ class AdaptiveRiskEngine:
         db: Session,
     ) -> RiskSignalResult:
         """Signal 7: Evaluate transaction memo using the AI Threat Analyzer service."""
-        from backend.services.ai_threat_analyzer import ai_threat_analyzer
+        from services.ai_threat_analyzer import ai_threat_analyzer
 
         return ai_threat_analyzer.evaluate_memo_risk_signal(memo, user=user, db=db)
 

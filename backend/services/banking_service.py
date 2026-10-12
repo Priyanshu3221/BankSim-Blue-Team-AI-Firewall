@@ -18,8 +18,8 @@ import uuid
 from fastapi import HTTPException, status
 from sqlalchemy.orm import Session
 
-from backend.config import get_settings
-from backend.models import (
+from config import get_settings
+from models import (
     Account,
     ChallengePurpose,
     ChallengeStatus,
@@ -32,14 +32,14 @@ from backend.models import (
     User,
     VerificationChallenge,
 )
-from backend.schemas import (
+from schemas import (
     RiskLevel,
     RiskOutcome,
     TransferRequest,
     TransferResponse,
 )
-from backend.services.risk_engine import RiskEvaluationContext, risk_engine
-from backend.services.verification_service import verification_service
+from services.risk_engine import RiskEvaluationContext, risk_engine
+from services.verification_service import verification_service
 
 import threading
 

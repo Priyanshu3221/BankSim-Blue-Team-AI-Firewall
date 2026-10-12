@@ -3,7 +3,7 @@
 from datetime import datetime, timedelta, timezone
 from typing import Dict, List
 
-from backend.config import get_settings
+from config import get_settings
 
 
 class LoginAttemptTracker:

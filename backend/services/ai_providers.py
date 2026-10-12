@@ -7,8 +7,8 @@ import logging
 import re
 from typing import Optional, Tuple
 
-from backend.config import get_settings
-from backend.schemas import (
+from config import get_settings
+from schemas import (
     AIThreatAction,
     AIThreatAnalysisResponse,
     ThreatCategory,

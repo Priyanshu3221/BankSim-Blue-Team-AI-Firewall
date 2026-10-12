@@ -6,9 +6,9 @@ from sqlalchemy import create_engine, event
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.pool import StaticPool
 
-from backend.database import Base, get_db, set_sqlite_pragma
-from backend.main import app
-from backend.models import (
+from database import Base, get_db, set_sqlite_pragma
+from main import app
+from models import (
     Account,
     SecurityEvent,
     SecurityEventType,
@@ -16,24 +16,24 @@ from backend.models import (
     User,
     UserRole,
 )
-from backend.schemas import (
+from schemas import (
     AIThreatAction,
     RiskLevel,
     RiskOutcome,
     ThreatCategory,
 )
-from backend.security.login_tracker import login_tracker
-from backend.security.tokens import create_access_token
-from backend.services.ai_providers import (
+from security.login_tracker import login_tracker
+from security.tokens import create_access_token
+from services.ai_providers import (
     GeminiProvider,
     MockAIProvider,
     OpenAIProvider,
 )
-from backend.services.ai_threat_analyzer import (
+from services.ai_threat_analyzer import (
     AIThreatAnalyzer,
     ai_threat_analyzer,
 )
-from backend.services.risk_engine import risk_engine
+from services.risk_engine import risk_engine
 
 
 @pytest.fixture
@@ -380,7 +380,7 @@ def test_gemini_provider_handles_exception_safely():
 
 def test_ai_threat_analyzer_provider_selection(monkeypatch):
     """Test 16: AIThreatAnalyzer selects Gemini, OpenAI, or Mock according to AI_PROVIDER setting."""
-    from backend.config import get_settings
+    from config import get_settings
 
     # 1. Gemini selection
     monkeypatch.setenv("AI_PROVIDER", "gemini")

@@ -8,9 +8,9 @@ from sqlalchemy import create_engine, event
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.pool import StaticPool
 
-from backend.database import Base, get_db, set_sqlite_pragma
-from backend.main import app
-from backend.models import (
+from database import Base, get_db, set_sqlite_pragma
+from main import app
+from models import (
     Account,
     AccountType,
     ChallengePurpose,
@@ -24,14 +24,14 @@ from backend.models import (
     UserRole,
     VerificationChallenge,
 )
-from backend.schemas import RiskOutcome, ThreatCategory, AIThreatAction
-from backend.security.login_tracker import login_tracker
-from backend.security.passwords import hash_password
-from backend.security.tokens import create_access_token
-from backend.services.ai_providers import MockAIProvider
-from backend.services.ai_threat_analyzer import ai_threat_analyzer
-from backend.services.banking_service import banking_service
-from backend.services.verification_service import otp_provider
+from schemas import RiskOutcome, ThreatCategory, AIThreatAction
+from security.login_tracker import login_tracker
+from security.passwords import hash_password
+from security.tokens import create_access_token
+from services.ai_providers import MockAIProvider
+from services.ai_threat_analyzer import ai_threat_analyzer
+from services.banking_service import banking_service
+from services.verification_service import otp_provider
 
 
 @pytest.fixture
@@ -410,7 +410,7 @@ def test_ai_provider_failure_follows_safe_policy(banking_fixture):
     # Simulate AI provider failing closed to FLAG_FOR_REVIEW
     class FailingProvider(MockAIProvider):
         def analyze_threat(self, text, context=None):
-            from backend.schemas import AIThreatAnalysisResponse
+            from schemas import AIThreatAnalysisResponse
             return AIThreatAnalysisResponse(
                 threat_detected=False,
                 threat_categories=[ThreatCategory.UNKNOWN],
@@ -527,7 +527,7 @@ def test_concurrent_transfers_cannot_overspend_account(banking_fixture):
     user_a_id = user_a.id
     acc_b_number = str(acc_b.account_number)
 
-    from backend.schemas import TransferRequest
+    from schemas import TransferRequest
     from fastapi import HTTPException
 
     results = []

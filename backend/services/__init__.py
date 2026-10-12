@@ -1,15 +1,15 @@
 """Internal business logic, risk assessment, and defensive AI services package."""
 
-from backend.services.ai_providers import (
+from services.ai_providers import (
     BaseLLMProvider,
     MockAIProvider,
     OpenAIProvider,
 )
-from backend.services.ai_threat_analyzer import (
+from services.ai_threat_analyzer import (
     AIThreatAnalyzer,
     ai_threat_analyzer,
 )
-from backend.services.risk_engine import (
+from services.risk_engine import (
     AdaptiveRiskEngine,
     RiskEvaluationContext,
     risk_engine,

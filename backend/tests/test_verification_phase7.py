@@ -7,9 +7,9 @@ from sqlalchemy import create_engine, event
 from sqlalchemy.orm import Session, sessionmaker
 from sqlalchemy.pool import StaticPool
 
-from backend.database import Base, get_db, set_sqlite_pragma
-from backend.main import app
-from backend.models import (
+from database import Base, get_db, set_sqlite_pragma
+from main import app
+from models import (
     Account,
     AccountType,
     ChallengePurpose,
@@ -21,12 +21,12 @@ from backend.models import (
     UserRole,
     Transaction,
 )
-from backend.security.passwords import hash_password
-from backend.security.tokens import create_access_token
-from backend.services.ai_providers import MockAIProvider
-from backend.services.ai_threat_analyzer import ai_threat_analyzer
-from backend.services.banking_service import banking_service
-from backend.services.verification_service import (
+from security.passwords import hash_password
+from security.tokens import create_access_token
+from services.ai_providers import MockAIProvider
+from services.ai_threat_analyzer import ai_threat_analyzer
+from services.banking_service import banking_service
+from services.verification_service import (
     otp_provider,
     face_provider,
     verification_service,

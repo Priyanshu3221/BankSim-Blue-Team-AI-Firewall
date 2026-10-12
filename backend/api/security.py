@@ -3,17 +3,17 @@
 from fastapi import APIRouter, Depends, HTTPException, Request, status
 from sqlalchemy.orm import Session
 
-from backend.database import get_db
-from backend.models import Account, User
-from backend.schemas import (
+from database import get_db
+from models import Account, User
+from schemas import (
     AIThreatAnalysisRequest,
     AIThreatAnalysisResponse,
     RiskAssessmentRequest,
     RiskAssessmentResponse,
 )
-from backend.security.dependencies import get_current_user
-from backend.services.ai_threat_analyzer import ai_threat_analyzer
-from backend.services.risk_engine import RiskEvaluationContext, risk_engine
+from security.dependencies import get_current_user
+from services.ai_threat_analyzer import ai_threat_analyzer
+from services.risk_engine import RiskEvaluationContext, risk_engine
 
 security_router = APIRouter(prefix="/security", tags=["Security & AI Firewall"])
 

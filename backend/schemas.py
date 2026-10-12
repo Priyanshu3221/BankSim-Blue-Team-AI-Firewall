@@ -6,7 +6,7 @@ from typing import Any, Dict, List, Optional
 
 from pydantic import BaseModel, ConfigDict, Field
 
-from backend.models import (
+from models import (
     AccountType,
     ChallengePurpose,
     ChallengeStatus,

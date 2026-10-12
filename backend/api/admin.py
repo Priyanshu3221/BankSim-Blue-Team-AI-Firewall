@@ -4,10 +4,10 @@ from typing import Any, Dict, List
 from fastapi import APIRouter, Depends, status
 from sqlalchemy.orm import Session
 
-from backend.database import get_db
-from backend.models import SecurityEvent, User
-from backend.schemas import SecurityEventRead
-from backend.security.dependencies import require_admin
+from database import get_db
+from models import SecurityEvent, User
+from schemas import SecurityEventRead
+from security.dependencies import require_admin
 
 admin_router = APIRouter(prefix="/admin", tags=["Admin RBAC"])
 

@@ -6,10 +6,10 @@ from typing import Optional
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 
-from backend.config import get_settings
-from backend.database import get_db
-from backend.models import Account, SecurityEvent, SecurityEventType, SecuritySeverity, Transaction, User
-from backend.schemas import (
+from config import get_settings
+from database import get_db
+from models import Account, SecurityEvent, SecurityEventType, SecuritySeverity, Transaction, User
+from schemas import (
     DevOTPResponse,
     LoginChallengeResponse,
     LoginRequest,
@@ -21,10 +21,10 @@ from backend.schemas import (
     UserRead,
     VerifyLoginOTPRequest,
 )
-from backend.security.login_tracker import login_tracker
-from backend.security.passwords import hash_password, verify_password
-from backend.security.tokens import create_access_token
-from backend.services.verification_service import verification_service
+from security.login_tracker import login_tracker
+from security.passwords import hash_password, verify_password
+from security.tokens import create_access_token
+from services.verification_service import verification_service
 
 logger = logging.getLogger("banksim.api.auth")
 auth_router = APIRouter(prefix="/auth", tags=["Authentication"])

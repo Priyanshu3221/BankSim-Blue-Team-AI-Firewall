@@ -7,9 +7,9 @@ from sqlalchemy import create_engine, event
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.pool import StaticPool
 
-from backend.database import Base, get_db, set_sqlite_pragma
-from backend.main import app
-from backend.models import (
+from database import Base, get_db, set_sqlite_pragma
+from main import app
+from models import (
     Account,
     AccountType,
     SecurityEvent,
@@ -19,11 +19,11 @@ from backend.models import (
     User,
     UserRole,
 )
-from backend.schemas import RiskLevel, RiskOutcome
-from backend.security.login_tracker import login_tracker
-from backend.security.passwords import hash_password
-from backend.security.tokens import create_access_token
-from backend.services.risk_engine import (
+from schemas import RiskLevel, RiskOutcome
+from security.login_tracker import login_tracker
+from security.passwords import hash_password
+from security.tokens import create_access_token
+from services.risk_engine import (
     AdaptiveRiskEngine,
     RiskEvaluationContext,
     risk_engine,

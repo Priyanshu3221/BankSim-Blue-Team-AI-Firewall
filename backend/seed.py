@@ -5,7 +5,7 @@ Usage:
 """
 
 import sys
-from backend.database import init_db, seed_demo_data
+from database import init_db, seed_demo_data
 
 
 def main() -> None:

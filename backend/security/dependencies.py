@@ -6,9 +6,9 @@ from fastapi import Depends, HTTPException, status
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from sqlalchemy.orm import Session
 
-from backend.database import get_db
-from backend.models import User, UserRole
-from backend.security.tokens import TokenExpiredError, TokenInvalidError, decode_access_token
+from database import get_db
+from models import User, UserRole
+from security.tokens import TokenExpiredError, TokenInvalidError, decode_access_token
 
 # HTTP Bearer scheme with automatic error suppression so we return custom 401 details
 bearer_scheme = HTTPBearer(auto_error=False)

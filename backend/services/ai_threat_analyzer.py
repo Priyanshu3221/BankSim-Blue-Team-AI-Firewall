@@ -10,15 +10,15 @@ import logging
 from typing import Optional
 from sqlalchemy.orm import Session
 
-from backend.config import get_settings
-from backend.models import SecurityEvent, SecurityEventType, SecuritySeverity, User
-from backend.schemas import (
+from config import get_settings
+from models import SecurityEvent, SecurityEventType, SecuritySeverity, User
+from schemas import (
     AIThreatAction,
     AIThreatAnalysisResponse,
     RiskSignalResult,
     ThreatCategory,
 )
-from backend.services.ai_providers import (
+from services.ai_providers import (
     BaseLLMProvider,
     GeminiProvider,
     MockAIProvider,
