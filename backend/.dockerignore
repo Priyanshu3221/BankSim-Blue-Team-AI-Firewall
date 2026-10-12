@@ -1,0 +1,39 @@
+# BankSim Backend Docker Ignore Specification
+# Build context: backend/
+
+# Secrets & Environment Configuration (Must NEVER be baked into container image)
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.cert
+
+# Python bytecode, cache & test artifacts
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Virtual environments
+.venv/
+venv/
+ENV/
+env/
+
+# Local databases & runtime storage (Do not bake developer SQLite DB into image)
+*.db
+*.sqlite
+*.sqlite3
+data/
+data/*.db
+data/*.sqlite*
+
+# IDE & OS files
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db

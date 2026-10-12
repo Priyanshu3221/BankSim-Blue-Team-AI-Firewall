@@ -1,15 +1,15 @@
 # BankSim: Blue-Team AI Firewall — Backend Dockerfile for Google Cloud Run
 #
-# Build context: Repository root
-# Local build command:
-#   docker build -f backend/Dockerfile -t banksim-backend .
+# Build context: backend/ directory (matches Google Cloud Run Developer Connect
+# when the Dockerfile is located inside backend/)
 #
-# Cloud Run build and deploy:
-#   gcloud run deploy banksim-backend \
-#     --source . \
-#     --dockerfile backend/Dockerfile \
-#     --region <REGION> \
-#     --allow-unauthenticated
+# Local build command:
+#   docker build -t banksim-backend backend
+#   (or: cd backend && docker build -t banksim-backend .)
+#
+# Google Cloud Run / Developer Connect:
+#   Source context directory: backend
+#   Dockerfile path: Dockerfile (or backend/Dockerfile depending on UI prompt)
 
 FROM python:3.11-slim
 
@@ -27,12 +27,12 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
     PORT=8080
 
 # Step 1: Install Python dependencies first for optimal Docker layer caching
-COPY backend/requirements.txt /app/backend/requirements.txt
+COPY requirements.txt /app/backend/requirements.txt
 RUN pip install --no-cache-dir --upgrade pip && \
     pip install --no-cache-dir -r /app/backend/requirements.txt
 
 # Step 2: Copy backend application code into /app/backend
-COPY backend/ /app/backend/
+COPY . /app/backend/
 
 # Step 3: Security hardening — Run as an unprivileged non-root user
 # Create dedicated group and user, initialize SQLite data directory, and set permissions
