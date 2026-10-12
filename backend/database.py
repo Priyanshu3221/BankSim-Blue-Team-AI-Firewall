@@ -12,7 +12,7 @@ from urllib.parse import urlparse
 from sqlalchemy import Engine, create_engine, event, text
 from sqlalchemy.orm import DeclarativeBase, Session, sessionmaker
 
-from backend.config import PROJECT_ROOT, get_settings
+from config import PROJECT_ROOT, get_settings
 
 
 class Base(DeclarativeBase):
@@ -54,21 +54,52 @@ def ensure_sqlite_directory(database_url: str) -> None:
                 db_dir.mkdir(parents=True, exist_ok=True)
 
 
+def normalize_database_url(url: str) -> str:
+    """Normalize and validate database connection URLs across dialects."""
+    if not url:
+        return url
+
+    # Normalize cloud provider 'postgres://' scheme to SQLAlchemy 'postgresql://'
+    if url.startswith("postgres://"):
+        url = url.replace("postgres://", "postgresql://", 1)
+
+    # Resolve relative SQLite file paths against PROJECT_ROOT
+    if url.startswith("sqlite:///") and ":memory:" not in url:
+        url = normalize_sqlite_url(url)
+
+    return url
+
+
 def create_db_engine(database_url: Optional[str] = None) -> Engine:
     """Create a configured SQLAlchemy engine."""
-    url = database_url or get_settings().DATABASE_URL
-    url = normalize_sqlite_url(url)
-    ensure_sqlite_directory(url)
+    raw_url = database_url or get_settings().DATABASE_URL
+    url = normalize_database_url(raw_url)
 
-    connect_args = {}
+    connect_args: Dict[str, Any] = {}
+    engine_kwargs: Dict[str, Any] = {
+        "echo": False,
+        "future": True,
+    }
+
     if url.startswith("sqlite"):
+        ensure_sqlite_directory(url)
         connect_args["check_same_thread"] = False
+    else:
+        # PostgreSQL engine settings for serverless / production resilience
+        engine_kwargs["pool_pre_ping"] = True
+        engine_kwargs["pool_recycle"] = 300
+        import os
+        if os.environ.get("VERCEL"):
+            from sqlalchemy.pool import NullPool
+            engine_kwargs["poolclass"] = NullPool
+        else:
+            engine_kwargs["pool_size"] = 5
+            engine_kwargs["max_overflow"] = 5
 
     return create_engine(
         url,
         connect_args=connect_args,
-        echo=False,
-        future=True,
+        **engine_kwargs,
     )
 
 
@@ -83,37 +114,38 @@ def init_db(engine_instance: Optional[Engine] = None) -> None:
     Base.metadata.create_all(bind=target_engine)
 
     # Safe column migrations for existing SQLite tables
-    try:
-        with target_engine.connect() as conn:
-            # Migration for verification_challenges
-            result = conn.execute(text("PRAGMA table_info(verification_challenges)")).fetchall()
-            existing_vc_cols = {row[1] for row in result}
-            if existing_vc_cols:
-                if "resend_count" not in existing_vc_cols:
-                    conn.execute(text("ALTER TABLE verification_challenges ADD COLUMN resend_count INTEGER DEFAULT 0"))
-                    conn.commit()
-                if "last_resend_at" not in existing_vc_cols:
-                    conn.execute(text("ALTER TABLE verification_challenges ADD COLUMN last_resend_at DATETIME"))
-                    conn.commit()
+    if target_engine.dialect.name == "sqlite":
+        try:
+            with target_engine.connect() as conn:
+                # Migration for verification_challenges
+                result = conn.execute(text("PRAGMA table_info(verification_challenges)")).fetchall()
+                existing_vc_cols = {row[1] for row in result}
+                if existing_vc_cols:
+                    if "resend_count" not in existing_vc_cols:
+                        conn.execute(text("ALTER TABLE verification_challenges ADD COLUMN resend_count INTEGER DEFAULT 0"))
+                        conn.commit()
+                    if "last_resend_at" not in existing_vc_cols:
+                        conn.execute(text("ALTER TABLE verification_challenges ADD COLUMN last_resend_at DATETIME"))
+                        conn.commit()
 
-            # Migration for users
-            user_res = conn.execute(text("PRAGMA table_info(users)")).fetchall()
-            existing_user_cols = {row[1] for row in user_res}
-            if existing_user_cols:
-                if "full_name" not in existing_user_cols:
-                    conn.execute(text("ALTER TABLE users ADD COLUMN full_name VARCHAR(100)"))
-                    conn.commit()
-                if "phone_number" not in existing_user_cols:
-                    conn.execute(text("ALTER TABLE users ADD COLUMN phone_number VARCHAR(20)"))
-                    conn.commit()
-                if "phone_verified" not in existing_user_cols:
-                    conn.execute(text("ALTER TABLE users ADD COLUMN phone_verified BOOLEAN DEFAULT 0"))
-                    conn.commit()
-                if "email_verified" not in existing_user_cols:
-                    conn.execute(text("ALTER TABLE users ADD COLUMN email_verified BOOLEAN DEFAULT 0"))
-                    conn.commit()
-    except Exception:
-        pass
+                # Migration for users
+                user_res = conn.execute(text("PRAGMA table_info(users)")).fetchall()
+                existing_user_cols = {row[1] for row in user_res}
+                if existing_user_cols:
+                    if "full_name" not in existing_user_cols:
+                        conn.execute(text("ALTER TABLE users ADD COLUMN full_name VARCHAR(100)"))
+                        conn.commit()
+                    if "phone_number" not in existing_user_cols:
+                        conn.execute(text("ALTER TABLE users ADD COLUMN phone_number VARCHAR(20)"))
+                        conn.commit()
+                    if "phone_verified" not in existing_user_cols:
+                        conn.execute(text("ALTER TABLE users ADD COLUMN phone_verified BOOLEAN DEFAULT 0"))
+                        conn.commit()
+                    if "email_verified" not in existing_user_cols:
+                        conn.execute(text("ALTER TABLE users ADD COLUMN email_verified BOOLEAN DEFAULT 0"))
+                        conn.commit()
+        except Exception:
+            pass
 
 
 def drop_db(engine_instance: Optional[Engine] = None) -> None:
@@ -123,21 +155,26 @@ def drop_db(engine_instance: Optional[Engine] = None) -> None:
 
 
 def get_db() -> Generator[Session, None, None]:
-    """FastAPI dependency yielding an isolated database session."""
+    """FastAPI dependency yielding an isolated database session with rollback safety."""
     db: Session = SessionLocal()
     try:
         yield db
+    except Exception:
+        db.rollback()
+        raise
     finally:
         db.close()
 
 
-def seed_demo_data(session: Optional[Session] = None) -> Dict[str, Any]:
+def seed_demo_data(
+    session: Optional[Session] = None, reset_balances: bool = False
+) -> Dict[str, Any]:
     """Safely and idempotently seed local-development demo users and accounts.
 
     Never deletes existing tables, resets balances, or overwrites existing users.
     """
-    from backend.models import Account, AccountType, User, UserRole
-    from backend.security.passwords import hash_password
+    from models import Account, AccountType, User, UserRole
+    from security.passwords import hash_password
 
     # Ensure tables are created first
     init_db()
@@ -210,7 +247,7 @@ def seed_demo_data(session: Optional[Session] = None) -> Dict[str, Any]:
 
     try:
         from datetime import datetime, timedelta, timezone
-        from backend.models import Transaction, TransactionStatus
+        from models import Transaction, TransactionStatus
 
         for item in demo_users:
             user = session.query(User).filter(User.username == item["username"]).first()
@@ -251,13 +288,13 @@ def seed_demo_data(session: Optional[Session] = None) -> Dict[str, Any]:
                     session.commit()
                     results["accounts_created"].append(acc.account_number)
                 else:
-                    # Guarantee Judge demo accounts have sufficient funds for live demonstration
-                    if item["username"] == "bob" and acc.balance < 500000000:
-                        acc.balance = 500000000
-                        session.commit()
-                    elif item["username"] == "alice" and acc.balance < 10000000:
-                        acc.balance = 10000000
-                        session.commit()
+                    if reset_balances:
+                        if item["username"] == "bob" and acc.balance < 500000000:
+                            acc.balance = 500000000
+                            session.commit()
+                        elif item["username"] == "alice" and acc.balance < 10000000:
+                            acc.balance = 10000000
+                            session.commit()
                     results["accounts_preserved"].append(acc.account_number)
 
         # Idempotently seed realistic historical transactions
