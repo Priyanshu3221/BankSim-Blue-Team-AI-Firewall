@@ -1,6 +1,7 @@
 """Application configuration and environment settings for BankSim."""
 
 from functools import lru_cache
+import os
 from pathlib import Path
 from typing import Any, List, Optional
 from pydantic import AliasChoices, Field, field_validator
@@ -49,7 +50,14 @@ class Settings(BaseSettings):
     ]
 
     # Database configuration for SQLite (safe local default under backend/data/)
-    DATABASE_URL: str = "sqlite:///./backend/data/banksim.db"
+    DATABASE_URL: str = Field(
+        default="sqlite:///./backend/data/banksim.db",
+        description="Database connection URL",
+    )
+    SEED_DEMO_DATA: bool = Field(
+        default=False,
+        description="Explicit flag to seed demo users and accounts at startup",
+    )
 
     # Authentication & Security
     SECRET_KEY: str = Field(
@@ -127,6 +135,33 @@ class Settings(BaseSettings):
                     pass
             return [origin.strip() for origin in value.split(",") if origin.strip()]
         return value
+
+    @field_validator("DATABASE_URL")
+    @classmethod
+    def validate_database_url(cls, v: str, info) -> str:
+        """Enforce persistent database configuration in production."""
+        env = str(info.data.get("ENVIRONMENT", "development")).lower()
+        is_production = env == "production" or os.environ.get("VERCEL_ENV") == "production"
+        if is_production:
+            if not v or v.startswith("sqlite"):
+                raise ValueError(
+                    "DATABASE_URL must be configured with a persistent PostgreSQL database in production. "
+                    "SQLite is not permitted in production environments."
+                )
+        return v
+
+    @field_validator("SECRET_KEY")
+    @classmethod
+    def validate_secret_key(cls, v: str, info) -> str:
+        """Enforce a secure non-default cryptographic secret key in production."""
+        env = str(info.data.get("ENVIRONMENT", "development")).lower()
+        is_production = env == "production" or os.environ.get("VERCEL_ENV") == "production"
+        if is_production:
+            if not v or v == "banksim-dev-secret-key-replace-in-production-abcdef123456":
+                raise ValueError(
+                    "A secure cryptographic SECRET_KEY must be provided via environment variables in production."
+                )
+        return v
 
 
 @lru_cache()
